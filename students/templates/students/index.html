@@ -1,0 +1,17 @@
+{% extends 'students/base.html' %} {% block content %}
+<h1>{{title}}</h1>
+<div class="container">
+  <ul class="portfolio">
+    {% for item in students_list %}
+    <li class="portfolio__item">
+      <h2 class="portfolio__name">{{item.first_name}} {{item.last_name}}</h2>
+      <p class="portfolio__birth portfolio__info">Дата рождения: {{item.birth_date}}</p>
+      <p class="portfolio__email portfolio__info">EMAIL: {{item.email}}</p>
+      <p class="portfolio__phone portfolio__info">Телефон: {{item.phone}}</p>
+      <a href="{{ item.get_absolute_url }}" class="portfolio__link">Открыть портфолио</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+<p>Вы посетили эту страницу {{ num_visits }} раз.</p>
+{% endblock %}
