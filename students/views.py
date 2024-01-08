@@ -20,6 +20,8 @@ from rest_framework.reverse import reverse
 from rest_framework import viewsets
 from rest_framework import renderers
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter
 
 
 def index(request):
@@ -76,8 +78,10 @@ class StudentsViewSet(viewsets.ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentsSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['owner']
+    search_fields = ['first_name', 'last_name']
+    ordering_fields = ['first_name']
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -85,6 +89,33 @@ class StudentsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def second_course_of_studying(self, request):
         students = Students.objects.all().filter(Q(birth_date__startswith="2004") | Q(birth_date__startswith="2003"))
+
+        page = self.paginate_queryset(students)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(students, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def not_ru_phone_but_gmail_or_mail(self, request):
+        students = Students.objects.all().filter(
+            ~Q(phone__startswith='7') & (Q(email__contains='gmail.com') | Q(email__contains='mail.ru')))
+
+        page = self.paginate_queryset(students)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(students, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def programmers_or_engineers_who_are_in_first_10(self, request):
+        students = Students.objects.all().filter(
+            (Q(skill__skill_name='Программирование') | Q(skill__skill_name='Инженирование')) & ~(Q(id__gt=10))
+        )
 
         page = self.paginate_queryset(students)
         if page is not None:
@@ -117,6 +148,14 @@ class SkillsViewSet(viewsets.ModelViewSet):
     queryset = Skills.objects.all()
     serializer_class = SkillsSerializer
     permission_classes = [permissions.DjangoModelPermissionsOrAnonReadOnly]
+
+    @action(methods=['POST'], detail=True)
+    def make_skill_important(self, request, pk=None):
+        skill_instance = self.get_object()
+        skill_instance.skill_name += " Важный"
+        skill_instance.save()
+        serializer = self.get_serializer(skill_instance)
+        return Response(serializer.data)
 
 
 @api_view(['GET'])

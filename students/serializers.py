@@ -31,7 +31,7 @@ class StudentsSerializer(serializers.HyperlinkedModelSerializer):
 class SkillsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
-        fields = ['skill_name']
+        fields = ['url','skill_name']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
