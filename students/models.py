@@ -101,3 +101,4 @@ class Workexperiences(models.Model):
     class Meta:
         verbose_name = 'Опыт работы'
         verbose_name_plural = 'Опыт работы'
+

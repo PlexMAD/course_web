@@ -22,7 +22,6 @@ class StudentsSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("Введите фамилию на русском")
         return data
 
-
     class Meta:
         model = Students
         fields = ['url', 'id', 'first_name', 'last_name', 'birth_date', 'email', 'phone', 'projects', 'skill', 'owner']
@@ -31,7 +30,7 @@ class StudentsSerializer(serializers.HyperlinkedModelSerializer):
 class SkillsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skills
-        fields = ['url','skill_name']
+        fields = ['url', 'skill_name']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
